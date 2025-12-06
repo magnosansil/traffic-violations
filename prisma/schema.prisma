@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // URL de conexão configurada via DATABASE_URL no .env
+  // Para Neon: postgresql://user:password@host.neon.tech/dbname?sslmode=require
+}
+
+enum ViolationLevel {
+  LEVE        // 3 points
+  MEDIA       // 4 points
+  GRAVE       // 5 points
+  GRAVISSIMA  // 7 points
+}
+
+enum VehicleSpecies {
+  PASSAGEIROS
+  CARGA
+  MISTO
+  COMPETICAO
+  TRACAO
+  ESPECIAL
+  COLECAO
+}
+
+enum Gender {
+  MASCULINO
+  FEMININO
+  OUTRO
+}
+
+model TrafficViolationType {
+  id          String         @id @default(uuid())
+  description String
+  level       ViolationLevel
+  points      Int            // 3, 4, 5, or 7 points based on level
+  violations  TrafficViolation[]
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("traffic_violation_types")
+}
+
+model Driver {
+  id                    String            @id @default(uuid())
+  name                  String
+  gender                Gender
+  birthDate             DateTime
+  licenseNumber         String            @unique // Registration number - must be unique
+  licenseValidity       DateTime
+  ownedVehicles         Vehicle[]         @relation("VehicleOwner")
+  trafficViolations     TrafficViolation[]
+  
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@map("drivers")
+}
+
+model Vehicle {
+  id            String            @id @default(uuid())
+  plate         String            @unique // Must be unique
+  species       VehicleSpecies
+  brand         String
+  model         String
+  ownerId       String?           // Optional owner
+  owner         Driver?           @relation("VehicleOwner", fields: [ownerId], references: [id])
+  violations    TrafficViolation[]
+  
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@map("vehicles")
+}
+
+model TrafficViolation {
+  id                    String                @id @default(uuid())
+  violationTypeId       String
+  violationType         TrafficViolationType  @relation(fields: [violationTypeId], references: [id])
+  vehicleId             String
+  vehicle               Vehicle               @relation(fields: [vehicleId], references: [id])
+  driverId              String
+  driver                Driver                @relation(fields: [driverId], references: [id])
+  violationDateTime     DateTime              // Date and time of the violation
+  roadLocation          Int                   // Kilometer between 1 and 120
+  
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@map("traffic_violations")
+}
+
