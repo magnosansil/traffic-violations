@@ -74,7 +74,7 @@ export class VehicleService {
     // Check if plate already exists
     const existingVehicle = await this.findByPlate(data.plate);
     if (existingVehicle) {
-      throw new Error('Vehicle with this plate already exists');
+      throw new Error('Já existe cadastro de veículo com esta placa.');
     }
 
     // If ownerId is provided, verify it exists
@@ -83,7 +83,7 @@ export class VehicleService {
         where: { id: data.ownerId },
       });
       if (!owner) {
-        throw new Error('Owner driver not found');
+        throw new Error('Proprietário não encontrado!');
       }
     }
 
@@ -103,7 +103,7 @@ export class VehicleService {
     if (data.plate) {
       const existingVehicle = await this.findByPlate(data.plate);
       if (existingVehicle && existingVehicle.id !== id) {
-        throw new Error('Vehicle with this plate already exists');
+        throw new Error('Já existe cadastro de veículo com esta placa.');
       }
     }
 
@@ -114,7 +114,7 @@ export class VehicleService {
           where: { id: data.ownerId },
         });
         if (!owner) {
-          throw new Error('Owner driver not found');
+          throw new Error('Proprietário não encontrado!');
         }
       }
     }
