@@ -57,7 +57,7 @@ export class DriverService {
     // Check if license number already exists
     const existingDriver = await this.findByLicenseNumber(data.licenseNumber);
     if (existingDriver) {
-      throw new Error('Driver with this license number already exists');
+      throw new Error('Já existe um cadastro de condutor com esta licença');
     }
 
     return prisma.driver.create({
@@ -74,7 +74,7 @@ export class DriverService {
     if (data.licenseNumber) {
       const existingDriver = await this.findByLicenseNumber(data.licenseNumber);
       if (existingDriver && existingDriver.id !== id) {
-        throw new Error('Driver with this license number already exists');
+        throw new Error('Já existe um cadastro de condutor com esta licença');
       }
     }
 
