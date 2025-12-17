@@ -1,11 +1,22 @@
 import 'dotenv/config';
 import { PrismaClient, ViolationLevel, VehicleSpecies, Gender } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
-// Para scripts de seed, usamos PrismaClient diretamente sem adapter
-// O adapter é necessário apenas para a aplicação em runtime
-// Neon funciona bem com PrismaClient padrão para seeds
-// O PrismaClient lê automaticamente a DATABASE_URL do .env
-const prisma = new PrismaClient();
+// Para este projeto, o client foi gerado para usar driver adapter.
+// Portanto, o seed também deve instanciar PrismaClient com adapter PG.
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 1,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+  ssl: process.env.DATABASE_URL?.includes('neon.tech')
+    ? { rejectUnauthorized: false }
+    : undefined,
+});
+
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('🌱 Seeding database...');
